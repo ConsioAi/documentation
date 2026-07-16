@@ -22,28 +22,15 @@
         "groups": [
           {
             "group": "Get Started",
-            "pages": [
-              "introduction",
-              "quickstart",
-              "authentication"
-            ]
+            "pages": []
           },
           {
             "group": "Core Concepts",
-            "pages": [
-              "concepts/workspaces",
-              "concepts/campaigns",
-              "concepts/ai-agents",
-              "concepts/calls",
-              "concepts/order-attribution"
-            ]
+            "pages": []
           },
           {
             "group": "Integrations",
-            "pages": [
-              "integrations/shopify",
-              "integrations/helpdesks"
-            ]
+            "pages": []
           }
         ]
       },

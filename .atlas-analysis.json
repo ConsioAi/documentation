@@ -9,42 +9,12 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Documentation",
-        "groups": [
-          {
-            "group": "Get Started",
-            "pages": [
-              "introduction",
-              "quickstart",
-              "authentication"
-            ]
-          },
-          {
-            "group": "Core Concepts",
-            "pages": [
-              "concepts/workspaces",
-              "concepts/campaigns",
-              "concepts/ai-agents",
-              "concepts/calls",
-              "concepts/order-attribution"
-            ]
-          },
-          {
-            "group": "Integrations",
-            "pages": [
-              "integrations/shopify",
-              "integrations/helpdesks"
-            ]
-          }
-        ]
-      },
-      {
         "tab": "API Reference",
         "groups": [
           {
             "group": "Overview",
             "pages": [
-              "api-reference/overview",
+              "index",
               "api-reference/authentication",
               "api-reference/pagination"
             ]
