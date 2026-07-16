@@ -1,0 +1,497 @@
+---
+title: "Retrieve Attributed Orders for a Workspace | Consio"
+sidebarTitle: "Attributed Orders"
+description: "Paginated attributed orders for a workspace. Links Shopify orders to calls, messages, or voicemails. Requires start_date and end_date."
+---
+
+Fetch a paginated list of orders that Consio has attributed to a call, message, or voicemail within your workspace. Each record links a Shopify order to the specific interaction that influenced it, giving you a direct view of how your AI-powered outreach drives revenue. Use this endpoint to build reporting dashboards, audit attribution logic, or export data for downstream analytics.
+
+```
+GET https://api-martin.consio.dev/public/v1/{workspace_slug}/attributed-orders
+```
+
+<Note>
+  Unlike the [Calls](/api-reference/calls) endpoint, `start_date` and `end_date` are **required** for this endpoint. Every request must include both parameters to define the reporting window.
+</Note>
+
+<Note>
+  All requests must include a valid API key in the `Authorization` header. See [Authentication](/api-reference/authentication) for details on generating and managing your API keys.
+</Note>
+
+---
+
+## Path Parameters
+
+<ParamField path="workspace_slug" type="string" required>
+  The unique identifier for your Consio workspace. You can find this in your workspace settings or in the URL when logged in to the Consio dashboard. See [Workspaces](/concepts/workspaces) for more details.
+</ParamField>
+
+---
+
+## Query Parameters
+
+### Date Range (Required)
+
+<ParamField query="start_date" type="datetime" required>
+  The start of the reporting window. Only orders attributed to interactions that occurred on or after this timestamp will be returned. Must be a valid ISO 8601 datetime string (e.g., `2024-01-01T00:00:00Z`).
+</ParamField>
+
+<ParamField query="end_date" type="datetime" required>
+  The end of the reporting window. Only orders attributed to interactions that occurred on or before this timestamp will be returned. Must be a valid ISO 8601 datetime string (e.g., `2024-01-31T23:59:59Z`).
+</ParamField>
+
+### Attribution Source
+
+<ParamField query="attribution_source" type="string">
+  Filter attributed orders by the type of interaction that influenced them. Accepted values:
+  - `call` — orders attributed to a voice call
+  - `message` — orders attributed to an SMS or messaging interaction
+  - `voicemail` — orders attributed to a voicemail left by an AI agent
+
+  Omit this parameter to return all attributed orders regardless of source. See [Order Attribution](/concepts/order-attribution) for details on how Consio assigns attribution.
+</ParamField>
+
+### Pagination & Ordering
+
+<ParamField query="page" type="integer" default="1">
+  The page number to return. Must be greater than `0`.
+</ParamField>
+
+<ParamField query="page_size" type="integer" default="50">
+  The number of records to return per page. Must be greater than `0` and no larger than `100`.
+</ParamField>
+
+<ParamField query="order_field" type="string" default="">
+  The field name to sort results by. Leave empty to use the default sort order.
+</ParamField>
+
+<ParamField query="order_direction" type="string" default="asc">
+  The sort direction. Accepted values: `asc` (ascending) or `desc` (descending).
+</ParamField>
+
+### Search
+
+<ParamField query="search_term" type="string" default="">
+  A free-text search string matched against customer name, order name, and other attribution metadata.
+</ParamField>
+
+### Agent Filters
+
+<ParamField query="user_id" type="integer">
+  Filter attributed orders to those linked to calls or interactions handled by a specific human agent, identified by their user ID.
+</ParamField>
+
+<ParamField query="ai_agent_id" type="integer">
+  Filter attributed orders to those linked to interactions handled by a specific AI agent, identified by its agent ID. See [AI Agents](/concepts/ai-agents) for more details.
+</ParamField>
+
+---
+
+## Example Request
+
+<CodeGroup>
+
+```bash cURL
+curl -X GET \
+  'https://api-martin.consio.dev/public/v1/your_workspace_slug/attributed-orders?start_date=2024-01-01T00:00:00Z&end_date=2024-01-31T23:59:59Z&attribution_source=call&page=1&page_size=50' \
+  -H 'Authorization: Bearer csk_your_api_key'
+```
+
+```python Python
+import requests
+
+workspace_slug = "your_workspace_slug"
+api_key = "csk_your_api_key"
+
+response = requests.get(
+    f"https://api-martin.consio.dev/public/v1/{workspace_slug}/attributed-orders",
+    headers={"Authorization": f"Bearer {api_key}"},
+    params={
+        "start_date": "2024-01-01T00:00:00Z",
+        "end_date": "2024-01-31T23:59:59Z",
+        "attribution_source": "call",
+        "page": 1,
+        "page_size": 50,
+    },
+)
+data = response.json()
+```
+
+```javascript JavaScript
+const workspaceSlug = "your_workspace_slug";
+const apiKey = "csk_your_api_key";
+
+const params = new URLSearchParams({
+  start_date: "2024-01-01T00:00:00Z",
+  end_date: "2024-01-31T23:59:59Z",
+  attribution_source: "call",
+  page: 1,
+  page_size: 50,
+});
+
+const response = await fetch(
+  `https://api-martin.consio.dev/public/v1/${workspaceSlug}/attributed-orders?${params}`,
+  {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+    },
+  }
+);
+
+const data = await response.json();
+```
+
+</CodeGroup>
+
+---
+
+## Example Response
+
+The response wraps a `pagination` object and an `items` array. The example below is abridged to a single attribution record.
+
+```json JSON
+{
+  "pagination": {
+    "page": 1,
+    "page_size": 50,
+    "total_items": 38,
+    "total_pages": 1,
+    "next_page": null,
+    "previous_page": null
+  },
+  "items": [
+    {
+      "id": 301,
+      "type": "call",
+      "call_id": 8821,
+      "message_id": null,
+      "order_total_price": 149.99,
+      "call_in_progress_at": "2024-01-15T10:03:12Z",
+      "order_created_at": "2024-01-15T14:22:07Z",
+      "cancelled_at": null,
+      "financial_status": "paid",
+      "customer": {
+        "id": 4401,
+        "name": "Jane Smith",
+        "email": "jane@example.com",
+        "phone": "+15551234567"
+      },
+      "user": null,
+      "ai_agent": {
+        "id": 5,
+        "name": "Sales AI"
+      },
+      "campaign": {
+        "id": 22,
+        "name": "January Re-engagement"
+      },
+      "order": {
+        "id": 9901,
+        "customer_id": 4401,
+        "integration_type": "shopify",
+        "object_type": "order",
+        "data": {
+          "name": "#1042",
+          "total_price": 149.99,
+          "financial_status": "paid",
+          "fulfillment_status": "fulfilled",
+          "subtotal_price": 149.99,
+          "total_discounts": 0.00,
+          "total_tax": 0.00,
+          "total_shipping_price": 0.00,
+          "total_outstanding": 0.00,
+          "created_at": "2024-01-15T14:22:07Z",
+          "order_status_url": "https://acme.myshopify.com/orders/abc123",
+          "admin_url": "https://admin.shopify.com/store/acme/orders/9901",
+          "line_items": [
+            {
+              "title": "Winter Jacket",
+              "variant_title": "Large / Black",
+              "quantity": 1,
+              "price": 149.99,
+              "discounted_price": 149.99,
+              "product_id": 777,
+              "image_url": "https://cdn.shopify.com/s/files/...",
+              "admin_url": "https://admin.shopify.com/store/acme/products/777"
+            }
+          ],
+          "fulfillments": [
+            {
+              "tracking_company": "UPS",
+              "tracking_number": "1Z999AA10123456784",
+              "tracking_url": "https://www.ups.com/track?tracknum=1Z999AA10123456784",
+              "shipment_status": "delivered",
+              "created_at": "2024-01-16T09:00:00Z"
+            }
+          ],
+          "shipping_address": {
+            "name": "Jane Smith",
+            "address1": "123 Main St",
+            "city": "New York",
+            "province": "NY",
+            "zip": "10001",
+            "country": "US"
+          }
+        }
+      }
+    }
+  ]
+}
+```
+
+---
+
+## Response Fields
+
+### Pagination
+
+For full details on navigating multi-page results, see [Pagination](/api-reference/pagination).
+
+### Attribution Object (`items[]`)
+
+<ResponseField name="id" type="integer">
+  The unique identifier for this attribution record.
+</ResponseField>
+
+<ResponseField name="type" type="string">
+  The type of interaction that was attributed to this order. Possible values: `call`, `message`, `voicemail`. See [Order Attribution](/concepts/order-attribution) for a full explanation of how Consio determines attribution.
+</ResponseField>
+
+<ResponseField name="call_id" type="integer | null">
+  The ID of the call record linked to this attribution. Populated when `type` is `call` or `voicemail`. `null` for message-attributed orders.
+</ResponseField>
+
+<ResponseField name="message_id" type="integer | null">
+  The ID of the message record linked to this attribution. Populated when `type` is `message`. `null` for call-attributed orders.
+</ResponseField>
+
+<ResponseField name="order_total_price" type="number">
+  The total value of the attributed order in the workspace's currency (e.g., `149.99`).
+</ResponseField>
+
+<ResponseField name="call_in_progress_at" type="datetime">
+  The ISO 8601 timestamp at which the attributed interaction (call, message, or voicemail) was in progress.
+</ResponseField>
+
+<ResponseField name="order_created_at" type="datetime">
+  The ISO 8601 timestamp at which the Shopify order was created.
+</ResponseField>
+
+<ResponseField name="cancelled_at" type="datetime | null">
+  The ISO 8601 timestamp at which the order was cancelled, if applicable. `null` if the order has not been cancelled.
+</ResponseField>
+
+<ResponseField name="financial_status" type="string | null">
+  The payment status of the order as reported by Shopify (e.g., `paid`, `pending`, `refunded`, `partially_refunded`).
+</ResponseField>
+
+<ResponseField name="customer" type="object">
+  The customer who placed the attributed order.
+
+  <Expandable title="customer">
+    <ResponseField name="id" type="integer">
+      The customer's unique ID in Consio.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      The customer's full name.
+    </ResponseField>
+    <ResponseField name="email" type="string">
+      The customer's email address.
+    </ResponseField>
+    <ResponseField name="phone" type="string">
+      The customer's phone number in E.164 format.
+    </ResponseField>
+    <ResponseField name="timezone" type="string">
+      The customer's timezone (e.g., `America/New_York`).
+    </ResponseField>
+    <ResponseField name="last_called_at" type="datetime | null">
+      The timestamp of the most recent call attempt to this customer.
+    </ResponseField>
+    <ResponseField name="last_picked_up_at" type="datetime | null">
+      The timestamp of the most recent call this customer answered.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="user" type="object | null">
+  The human agent linked to the attributed interaction, if any. `null` for AI-only interactions.
+
+  <Expandable title="user">
+    <ResponseField name="id" type="integer">
+      The agent's unique user ID.
+    </ResponseField>
+    <ResponseField name="email" type="string">
+      The agent's email address.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      The agent's display name.
+    </ResponseField>
+    <ResponseField name="role" type="string">
+      The agent's role within the workspace.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="ai_agent" type="object | null">
+  The AI agent linked to the attributed interaction, if any. See [AI Agents](/concepts/ai-agents) for more details.
+
+  <Expandable title="ai_agent">
+    <ResponseField name="id" type="integer">
+      The AI agent's unique ID.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      The display name of the AI agent.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="campaign" type="object | null">
+  The campaign associated with the attributed interaction, if any. See [Campaigns](/concepts/campaigns) for more details.
+
+  <Expandable title="campaign">
+    <ResponseField name="id" type="integer">
+      The campaign's unique ID.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      The campaign's display name.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="order" type="object">
+  The Shopify order linked to this attribution record.
+
+  <Expandable title="order">
+    <ResponseField name="id" type="integer">
+      The unique ID for this order record in Consio.
+    </ResponseField>
+    <ResponseField name="customer_id" type="integer">
+      The Consio customer ID associated with this order.
+    </ResponseField>
+    <ResponseField name="integration_id" type="integer">
+      The ID of the Shopify integration that sourced this order.
+    </ResponseField>
+    <ResponseField name="integration_type" type="string">
+      The integration platform type. Currently `shopify`. See [Shopify Integration](/integrations/shopify) for setup details.
+    </ResponseField>
+    <ResponseField name="object_id" type="string">
+      The external order ID in the integrated platform (e.g., the Shopify order ID).
+    </ResponseField>
+    <ResponseField name="object_type" type="string">
+      The type of object being referenced in the integration. Typically `order`.
+    </ResponseField>
+    <ResponseField name="data" type="object">
+      The full Shopify order data object.
+
+      <Expandable title="data (OutApiShopifyOrderData)">
+        <ResponseField name="id" type="integer">
+          The Shopify order ID.
+        </ResponseField>
+        <ResponseField name="name" type="string">
+          The Shopify order name (e.g., `#1042`).
+        </ResponseField>
+        <ResponseField name="total_price" type="number">
+          The total price of the order including taxes, discounts, and shipping.
+        </ResponseField>
+        <ResponseField name="subtotal_price" type="number">
+          The order subtotal before taxes and shipping.
+        </ResponseField>
+        <ResponseField name="total_discounts" type="number">
+          The total discount amount applied to the order.
+        </ResponseField>
+        <ResponseField name="total_tax" type="number">
+          The total tax charged on the order.
+        </ResponseField>
+        <ResponseField name="total_shipping_price" type="number">
+          The total shipping cost for the order.
+        </ResponseField>
+        <ResponseField name="total_outstanding" type="number">
+          The outstanding balance remaining on the order.
+        </ResponseField>
+        <ResponseField name="financial_status" type="string">
+          The payment status of the order (e.g., `paid`, `pending`, `refunded`).
+        </ResponseField>
+        <ResponseField name="fulfillment_status" type="string | null">
+          The fulfilment status of the order (e.g., `fulfilled`, `partial`, `unfulfilled`). `null` if not yet fulfilled.
+        </ResponseField>
+        <ResponseField name="created_at" type="datetime">
+          The ISO 8601 timestamp at which the order was created in Shopify.
+        </ResponseField>
+        <ResponseField name="order_status_url" type="string">
+          The customer-facing order status URL from Shopify.
+        </ResponseField>
+        <ResponseField name="admin_url" type="string">
+          The direct link to this order in the Shopify admin panel.
+        </ResponseField>
+        <ResponseField name="line_items" type="array">
+          The list of products included in the order.
+
+          <Expandable title="line_items[]">
+            <ResponseField name="title" type="string">
+              The product title (e.g., `Winter Jacket`).
+            </ResponseField>
+            <ResponseField name="variant_title" type="string">
+              The variant label for the product (e.g., `Large / Black`).
+            </ResponseField>
+            <ResponseField name="quantity" type="integer">
+              The quantity of this line item ordered.
+            </ResponseField>
+            <ResponseField name="price" type="number">
+              The original unit price of this item.
+            </ResponseField>
+            <ResponseField name="discounted_price" type="number">
+              The unit price after any discounts have been applied.
+            </ResponseField>
+            <ResponseField name="product_id" type="integer">
+              The Shopify product ID for this line item.
+            </ResponseField>
+            <ResponseField name="image_url" type="string | null">
+              A URL to the product image for this line item, if available.
+            </ResponseField>
+            <ResponseField name="admin_url" type="string | null">
+              A direct link to this product in the Shopify admin panel.
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
+        <ResponseField name="fulfillments" type="array">
+          A list of fulfilment records for the order, including tracking details.
+
+          <Expandable title="fulfillments[]">
+            <ResponseField name="tracking_company" type="string | null">
+              The name of the shipping carrier (e.g., `UPS`, `FedEx`).
+            </ResponseField>
+            <ResponseField name="tracking_number" type="string | null">
+              The shipment tracking number provided by the carrier.
+            </ResponseField>
+            <ResponseField name="tracking_url" type="string | null">
+              A URL to track the shipment on the carrier's website.
+            </ResponseField>
+            <ResponseField name="shipment_status" type="string | null">
+              The current status of the shipment (e.g., `delivered`, `in_transit`).
+            </ResponseField>
+            <ResponseField name="created_at" type="datetime">
+              The ISO 8601 timestamp at which this fulfilment was created.
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
+        <ResponseField name="shipping_address" type="object | null">
+          The shipping address for the order, if provided.
+        </ResponseField>
+        <ResponseField name="customer" type="object">
+          The Shopify customer record attached to the order.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+<Tip>
+  You can cross-reference `call_id` values here with the [Calls endpoint](/api-reference/calls) to retrieve the full call record — including the transcript, AI summary, and recording — for any attributed order.
+</Tip>
+
+<Warning>
+  Attribution windows and eligibility rules vary depending on your workspace configuration. Review [Order Attribution](/concepts/order-attribution) to understand how Consio decides which interactions qualify for credit.
+</Warning>

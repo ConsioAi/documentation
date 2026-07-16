@@ -1,0 +1,103 @@
+---
+title: "Consio Public API Reference: Calls & Attributed Orders"
+sidebarTitle: "Overview"
+description: "The Consio public REST API lets you retrieve call history and attributed orders for your workspace. Explore base URLs, versioning, and available endpoints."
+---
+
+The Consio public REST API gives you programmatic access to your workspace's call history and attributed order data. Use it to build custom dashboards, sync records to your data warehouse, or automate reporting workflows — all using standard HTTP requests and JSON responses.
+
+## Base URL
+
+All API requests are made to the following base URL:
+
+```text
+https://api-martin.consio.dev/public
+```
+
+## API Versioning
+
+Consio uses URL-based versioning. Every endpoint is prefixed with `/v1/`, so your full request URLs will always begin with:
+
+```text
+https://api-martin.consio.dev/public/v1/
+```
+
+When Consio introduces breaking changes, a new version prefix (e.g. `/v2/`) will be released. Your existing `/v1/` integrations will continue to work without modification until a deprecation notice is issued.
+
+## Available Endpoints
+
+The public API currently exposes the following endpoints:
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/v1/{workspace_slug}/calls` | Retrieve paginated call history for your workspace |
+| GET | `/v1/{workspace_slug}/attributed-orders` | Retrieve orders attributed to Consio calls |
+
+## The `workspace_slug` Path Parameter
+
+Every endpoint path includes a `{workspace_slug}` segment. This value uniquely identifies your workspace and determines which data is returned. You can find your workspace slug in your Consio dashboard URL — it appears as the path segment immediately after the domain, for example:
+
+```text
+https://app.consio.dev/your-workspace-slug/...
+```
+
+Replace `{workspace_slug}` in every request path with your actual slug. Using an API key from a different workspace with your slug returns HTTP `403`.
+
+## Response Format
+
+All API responses are JSON. List endpoints return a standard `PageResponse` envelope with two top-level keys:
+
+- **`pagination`** — a metadata object describing the current page and total result set (see [Pagination](/api-reference/pagination))
+- **`items`** — an array of result objects for the current page
+
+```json
+{
+  "pagination": {
+    "page": 1,
+    "page_size": 50,
+    "total_items": 134,
+    "total_pages": 3,
+    "next_page": 2,
+    "previous_page": null
+  },
+  "items": [ ... ]
+}
+```
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="key" href="/api-reference/authentication">
+    Learn how to generate your API key and pass it in every request using the `Authorization` header.
+  </Card>
+  <Card title="Pagination" icon="list" href="/api-reference/pagination">
+    Understand how to iterate through large result sets using the `page` and `page_size` query parameters.
+  </Card>
+</CardGroup>
+
+## Error Handling
+
+The API uses standard HTTP status codes to indicate success or failure.
+
+| Status | Meaning |
+|--------|---------|
+| `200` | Success — the request was processed and results are returned |
+| `401` | Unauthorized — the `Authorization` header is missing or the key format is invalid |
+| `403` | Forbidden — the API key is valid but does not belong to the requested workspace |
+| `422` | Unprocessable Entity — one or more query parameters failed validation |
+
+### Validation Error Response (422)
+
+When you send a request with invalid parameters, the API returns HTTP `422` along with a structured error body. The `detail` array contains one entry per validation failure, each with a `loc` (location of the invalid value), a human-readable `msg`, and a machine-readable `type`.
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["query", "page_size"],
+      "msg": "Input should be greater than 0",
+      "type": "greater_than"
+    }
+  ]
+}
+```
+
+Use the `loc` field to identify exactly which parameter caused the error, then correct the value and retry the request.

@@ -1,0 +1,93 @@
+---
+title: "Paginating Through Results in the Consio Public API"
+sidebarTitle: "Pagination"
+description: "Consio API list endpoints return paginated results. Learn how to use page, page_size, and the pagination envelope to iterate through large datasets."
+---
+
+All Consio list endpoints return results in pages rather than all at once. This keeps individual responses fast and predictable regardless of how many total records your workspace contains. You control the page number and page size using query parameters, and each response includes a `pagination` object that tells you exactly where you are in the full result set.
+
+## Query Parameters
+
+<ParamField query="page" type="integer" default="1">
+  The page number to retrieve. Must be greater than `0`. Pages are 1-indexed — the first page of results is page `1`.
+</ParamField>
+
+<ParamField query="page_size" type="integer" default="50">
+  The number of items to return per page. Must be greater than `0` and no greater than `100`. Use the maximum value of `100` when you want to minimize the number of requests needed to fetch a large dataset.
+</ParamField>
+
+## Response Envelope
+
+Every list endpoint wraps its results in a `PageResponse` envelope. The top-level response object always contains two keys: `pagination` and `items`.
+
+```json
+{
+  "pagination": {
+    "page": 1,
+    "page_size": 50,
+    "total_items": 247,
+    "total_pages": 5,
+    "next_page": 2,
+    "previous_page": null
+  },
+  "items": [ ... ]
+}
+```
+
+### Pagination Fields
+
+<ResponseField name="page" type="integer">
+  The current page number returned in this response.
+</ResponseField>
+
+<ResponseField name="page_size" type="integer">
+  The number of items per page that was used for this response. Matches the `page_size` you requested, or the default if you did not specify one.
+</ResponseField>
+
+<ResponseField name="total_items" type="integer">
+  The total number of records matching your query across all pages.
+</ResponseField>
+
+<ResponseField name="total_pages" type="integer">
+  The total number of pages available given the current `page_size`. This value is computed by the API — you cannot set it directly.
+</ResponseField>
+
+<ResponseField name="next_page" type="integer | null">
+  The page number of the next page of results. Returns `null` when you are on the last page — use this as your loop termination condition when iterating through all results.
+</ResponseField>
+
+<ResponseField name="previous_page" type="integer | null">
+  The page number of the previous page of results. Returns `null` when you are on the first page.
+</ResponseField>
+
+## Iterating Through All Pages
+
+To fetch every record in a result set, loop through pages until `next_page` is `null`. The example below retrieves all calls for a workspace:
+
+```python Python
+import requests
+
+workspace_slug = "your_workspace_slug"
+api_key = "csk_your_api_key"
+base_url = f"https://api-martin.consio.dev/public/v1/{workspace_slug}/calls"
+headers = {"Authorization": f"Bearer {api_key}"}
+
+page = 1
+all_calls = []
+
+while True:
+    resp = requests.get(base_url, headers=headers, params={"page": page, "page_size": 100})
+    data = resp.json()
+    all_calls.extend(data["items"])
+    if data["pagination"]["next_page"] is None:
+        break
+    page += 1
+
+print(f"Total calls fetched: {len(all_calls)}")
+```
+
+Setting `page_size=100` (the maximum) minimizes the total number of API requests needed to retrieve your full dataset.
+
+<Tip>
+  Apply filters — such as a date range or call state — before paginating to reduce the total number of items you need to fetch. A smaller `total_items` value means fewer pages to iterate, fewer requests to make, and faster overall execution. Check the individual endpoint references for the full list of available filter parameters.
+</Tip>

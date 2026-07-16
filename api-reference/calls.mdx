@@ -1,0 +1,483 @@
+---
+title: "Consio API: List and Filter Workspace Call History"
+sidebarTitle: "Calls"
+description: "Retrieve a paginated list of calls for your Consio workspace. Filter by date, campaign, agent, call state, direction, and revenue attribution."
+---
+
+Fetch a paginated list of all calls associated with your workspace. Each record in the response includes full call metadata — status, duration, revenue attribution, AI-generated transcript, summary bullet points, and suggested next steps. Use the rich filtering options to narrow results by date range, campaign, agent, direction, or call state.
+
+```
+GET https://api-martin.consio.dev/public/v1/{workspace_slug}/calls
+```
+
+<Note>
+  All requests must include a valid API key in the `Authorization` header. See [Authentication](/api-reference/authentication) for details on generating and managing your API keys.
+</Note>
+
+---
+
+## Path Parameters
+
+<ParamField path="workspace_slug" type="string" required>
+  The unique identifier for your Consio workspace. You can find this in your workspace settings or in the URL when logged in to the Consio dashboard. See [Workspaces](/concepts/workspaces) for more details.
+</ParamField>
+
+---
+
+## Query Parameters
+
+### Pagination & Ordering
+
+<ParamField query="page" type="integer" default="1">
+  The page number to return. Must be greater than `0`.
+</ParamField>
+
+<ParamField query="page_size" type="integer" default="50">
+  The number of records to return per page. Must be greater than `0` and no larger than `100`.
+</ParamField>
+
+<ParamField query="order_field" type="string" default="">
+  The field name to sort results by. Leave empty to use the default sort order.
+</ParamField>
+
+<ParamField query="order_direction" type="string" default="asc">
+  The sort direction. Accepted values: `asc` (ascending) or `desc` (descending).
+</ParamField>
+
+### Search
+
+<ParamField query="search_term" type="string" default="">
+  A free-text search string. Matched against customer name, phone number, and other call metadata.
+</ParamField>
+
+### Date Range
+
+<ParamField query="start_date" type="datetime">
+  Filter calls scheduled or created on or after this timestamp. Must be a valid ISO 8601 datetime string (e.g., `2024-01-01T00:00:00Z`).
+</ParamField>
+
+<ParamField query="end_date" type="datetime">
+  Filter calls scheduled or created on or before this timestamp. Must be a valid ISO 8601 datetime string (e.g., `2024-01-31T23:59:59Z`).
+</ParamField>
+
+### Call State
+
+<ParamField query="state" type="string">
+  Filter calls by their current state. Accepts values from three distinct filter groups:
+
+  **QueuedCallStateFilter** — filters calls that are still in the queue:
+  - `all_queued` — all calls currently queued
+  - `in_progress` — calls actively being handled
+  - `ready_to_call` — calls queued and ready to dial
+  - `scheduled_for_later` — calls scheduled for a future time
+  - `off_hours` — calls held due to off-hours settings
+
+  **CompletedCallStateFilter** — filters calls that have finished:
+  - `all_completed` — all completed calls regardless of outcome
+  - `connected` — calls where the customer answered
+  - `unanswered` — calls that were not picked up
+  - `failed` — calls that failed to connect due to a system error
+  - `with_connected_revenue` — completed connected calls with attributed revenue
+  - `with_revenue` — all completed calls with any attributed revenue
+
+  **CallMetadataFilter** — aggregate-style filters across all calls:
+  - `total` — all calls
+  - `ringing` — calls currently ringing
+  - `in_progress_connected` — calls currently connected and in progress
+  - `missed` — calls that were missed
+  - `answered` — calls that were answered
+</ParamField>
+
+### Direction
+
+<ParamField query="direction" type="string">
+  Filter by call direction. Accepted values: `inbound` or `outbound`. Omit this parameter to return calls in both directions.
+</ParamField>
+
+### Campaign Filters
+
+<ParamField query="current_campaign_id" type="integer">
+  Filter calls by a specific campaign ID. Returns only calls currently associated with the given campaign. See [Campaigns](/concepts/campaigns) for more details.
+</ParamField>
+
+<ParamField query="filter_campaign_id" type="boolean" default="true">
+  When set to `true`, the response will be scoped to calls belonging to the campaign identified by `current_campaign_id`. Set to `false` to include calls across all campaigns regardless of the `current_campaign_id` value.
+</ParamField>
+
+### Agent & Channel Filters
+
+<ParamField query="user_id" type="integer">
+  Filter calls handled by a specific human agent, identified by their user ID.
+</ParamField>
+
+<ParamField query="ai_agent_id" type="integer">
+  Filter calls handled by a specific AI agent, identified by its agent ID. See [AI Agents](/concepts/ai-agents) for more details.
+</ParamField>
+
+<ParamField query="phone_number_id" type="integer">
+  Filter calls made from or received on a specific phone number, identified by its phone number ID.
+</ParamField>
+
+### Revenue Filter
+
+<ParamField query="has_attributed_order" type="boolean">
+  When set to `true`, returns only calls that have at least one attributed order. When `false`, returns only calls with no attributed orders. Omit to return all calls regardless of attribution.
+</ParamField>
+
+---
+
+## Example Request
+
+<CodeGroup>
+
+```bash cURL
+curl -X GET \
+  'https://api-martin.consio.dev/public/v1/your_workspace_slug/calls?page=1&page_size=50&start_date=2024-01-01T00:00:00Z&end_date=2024-01-31T23:59:59Z&direction=outbound&state=all_completed' \
+  -H 'Authorization: Bearer csk_your_api_key'
+```
+
+```python Python
+import requests
+
+workspace_slug = "your_workspace_slug"
+api_key = "csk_your_api_key"
+
+response = requests.get(
+    f"https://api-martin.consio.dev/public/v1/{workspace_slug}/calls",
+    headers={"Authorization": f"Bearer {api_key}"},
+    params={
+        "page": 1,
+        "page_size": 50,
+        "start_date": "2024-01-01T00:00:00Z",
+        "end_date": "2024-01-31T23:59:59Z",
+        "direction": "outbound",
+        "state": "all_completed",
+    },
+)
+data = response.json()
+```
+
+```javascript JavaScript
+const workspaceSlug = "your_workspace_slug";
+const apiKey = "csk_your_api_key";
+
+const params = new URLSearchParams({
+  page: 1,
+  page_size: 50,
+  start_date: "2024-01-01T00:00:00Z",
+  end_date: "2024-01-31T23:59:59Z",
+  direction: "outbound",
+  state: "all_completed",
+});
+
+const response = await fetch(
+  `https://api-martin.consio.dev/public/v1/${workspaceSlug}/calls?${params}`,
+  {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+    },
+  }
+);
+
+const data = await response.json();
+```
+
+</CodeGroup>
+
+---
+
+## Example Response
+
+The response wraps a `pagination` object and an `items` array. The example below is abridged to a single call record.
+
+```json JSON
+{
+  "pagination": {
+    "page": 1,
+    "page_size": 50,
+    "total_items": 142,
+    "total_pages": 3,
+    "next_page": 2,
+    "previous_page": null
+  },
+  "items": [
+    {
+      "id": 8821,
+      "status": "completed",
+      "customer_id": 4401,
+      "attempt": 1,
+      "scheduled_at": "2024-01-15T10:00:00Z",
+      "duration": 187,
+      "customer_phone_number": "+15551234567",
+      "trigger_type": "outbound_power",
+      "direction": "outbound",
+      "revenue": 149.99,
+      "transcript": "Agent: Hi, is this Jane? ...\nCustomer: Yes, who's calling?",
+      "summary": [
+        "Customer expressed interest in the winter collection",
+        "Agreed to receive a follow-up SMS with discount code"
+      ],
+      "next_steps": ["Send SMS with 15% discount code"],
+      "campaign_id": 22,
+      "user_id": null,
+      "ai_agent": {
+        "id": 5,
+        "name": "Sales AI",
+        "greeting_message": "Hi, this is an AI assistant calling from Acme..."
+      },
+      "customer": {
+        "id": 4401,
+        "name": "Jane Smith",
+        "email": "jane@example.com",
+        "phone": "+15551234567"
+      },
+      "recordings": [
+        {
+          "type": "call",
+          "duration": 187,
+          "recording_sid": "RE123abc",
+          "source": "...",
+          "file_deleted_at": null
+        }
+      ],
+      "status_details": {
+        "app_status": "ended",
+        "is_off_hours": false
+      }
+    }
+  ]
+}
+```
+
+---
+
+## Response Fields
+
+### Pagination
+
+For full details on navigating multi-page results, see [Pagination](/api-reference/pagination).
+
+### Call Object (`items[]`)
+
+<ResponseField name="id" type="integer">
+  The unique identifier for the call record.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  The final or current status of the call. Possible values: `scheduled`, `assigned`, `reserved`, `dialing`, `in_progress`, `completed`, `no_agent`, `failed`, `canceled`, `busy`, `excluded`, `not_answered`, `dnc_excluded`.
+</ResponseField>
+
+<ResponseField name="customer_id" type="integer">
+  The ID of the customer associated with this call.
+</ResponseField>
+
+<ResponseField name="attempt" type="integer | null">
+  The attempt number for this call. Useful when a customer has been called multiple times within the same campaign.
+</ResponseField>
+
+<ResponseField name="scheduled_at" type="datetime | null">
+  The ISO 8601 timestamp at which this call was scheduled to occur.
+</ResponseField>
+
+<ResponseField name="duration" type="integer | null">
+  The total duration of the call in seconds. `null` if the call did not connect.
+</ResponseField>
+
+<ResponseField name="customer_phone_number" type="string | null">
+  The phone number dialed or received for this call, in E.164 format (e.g., `+15551234567`).
+</ResponseField>
+
+<ResponseField name="direction" type="string | null">
+  Whether this was an `inbound` or `outbound` call.
+</ResponseField>
+
+<ResponseField name="trigger_type" type="string | null">
+  How the call was initiated. Possible values: `outbound_click`, `outbound_power`, `inbound`.
+</ResponseField>
+
+<ResponseField name="disposition" type="string | null">
+  The agent-assigned disposition or outcome label for the call, if set.
+</ResponseField>
+
+<ResponseField name="revenue" type="number | null">
+  The revenue amount (in the workspace's currency) attributed to this call, if any.
+</ResponseField>
+
+<ResponseField name="transcript" type="string | null">
+  The full text transcript of the call. `null` if transcription is unavailable or the call did not connect.
+</ResponseField>
+
+<ResponseField name="summary" type="string[] | null">
+  An array of AI-generated bullet points summarising the key points of the call conversation.
+</ResponseField>
+
+<ResponseField name="next_steps" type="string[] | null">
+  An array of AI-suggested follow-up actions based on the call content (e.g., send a discount code, schedule a callback).
+</ResponseField>
+
+<ResponseField name="recordings" type="array | null">
+  A list of recording objects associated with this call.
+
+  <Expandable title="recordings[]">
+    <ResponseField name="type" type="string">
+      The type of recording. Either `call` (full call recording) or `voicemail`.
+    </ResponseField>
+    <ResponseField name="duration" type="integer">
+      The duration of the recording in seconds.
+    </ResponseField>
+    <ResponseField name="recording_sid" type="string">
+      The unique identifier for the recording resource.
+    </ResponseField>
+    <ResponseField name="source" type="string">
+      The URL or storage path of the recording file.
+    </ResponseField>
+    <ResponseField name="file_deleted_at" type="datetime | null">
+      The timestamp at which the recording file was deleted, if applicable. `null` if the file is still available.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="status_details" type="object">
+  Additional metadata about the call's current or final state.
+
+  <Expandable title="status_details">
+    <ResponseField name="app_status" type="string">
+      The application-level status of the call (e.g., `ended`, `ringing`).
+    </ResponseField>
+    <ResponseField name="reason" type="string | null">
+      A human-readable explanation for the current status, if available.
+    </ResponseField>
+    <ResponseField name="callable_at" type="datetime | null">
+      The earliest datetime at which the customer can be called again, if the call is deferred.
+    </ResponseField>
+    <ResponseField name="is_off_hours" type="boolean">
+      `true` if the call was held or skipped because it fell outside the workspace's configured calling hours.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="customer" type="object">
+  The customer record associated with this call.
+
+  <Expandable title="customer">
+    <ResponseField name="id" type="integer">
+      The customer's unique ID.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      The customer's full name.
+    </ResponseField>
+    <ResponseField name="email" type="string">
+      The customer's email address.
+    </ResponseField>
+    <ResponseField name="phone" type="string">
+      The customer's phone number in E.164 format.
+    </ResponseField>
+    <ResponseField name="timezone" type="string">
+      The customer's timezone (e.g., `America/New_York`).
+    </ResponseField>
+    <ResponseField name="last_called_at" type="datetime | null">
+      The timestamp of the most recent call attempt to this customer.
+    </ResponseField>
+    <ResponseField name="last_picked_up_at" type="datetime | null">
+      The timestamp of the most recent call this customer answered.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="user" type="object | null">
+  The human agent who handled the call, if any. `null` for AI-only calls.
+
+  <Expandable title="user">
+    <ResponseField name="id" type="integer">
+      The agent's unique user ID.
+    </ResponseField>
+    <ResponseField name="email" type="string">
+      The agent's email address.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      The agent's display name.
+    </ResponseField>
+    <ResponseField name="role" type="string">
+      The agent's role within the workspace.
+    </ResponseField>
+    <ResponseField name="phone_number" type="string">
+      The agent's assigned phone number.
+    </ResponseField>
+    <ResponseField name="status" type="string">
+      The agent's current availability status.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="ai_agent" type="object | null">
+  The AI agent that handled the call, if any. `null` for human-only calls. See [AI Agents](/concepts/ai-agents) for more details.
+
+  <Expandable title="ai_agent">
+    <ResponseField name="id" type="integer">
+      The AI agent's unique ID.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      The display name of the AI agent.
+    </ResponseField>
+    <ResponseField name="greeting_message" type="string">
+      The opening message the AI agent uses when a call connects.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="campaign" type="object | null">
+  The campaign this call belongs to, if any. See [Campaigns](/concepts/campaigns) for more details.
+
+  <Expandable title="campaign">
+    <ResponseField name="id" type="integer">
+      The campaign's unique ID.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      The campaign's display name.
+    </ResponseField>
+    <ResponseField name="status" type="string">
+      The current status of the campaign (e.g., `active`, `paused`, `completed`).
+    </ResponseField>
+    <ResponseField name="description" type="string | null">
+      An optional description of the campaign's purpose or goal.
+    </ResponseField>
+    <ResponseField name="discount_code" type="string | null">
+      A discount code associated with this campaign, if configured.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="manually_scheduled" type="boolean">
+  `true` if this call was manually scheduled by a team member rather than triggered automatically by a campaign.
+</ResponseField>
+
+<ResponseField name="manually_created" type="boolean">
+  `true` if this call record was created manually, outside of the normal campaign or automation flow.
+</ResponseField>
+
+<ResponseField name="recording_stopped" type="boolean">
+  `true` if recording was explicitly stopped during this call (for example, due to a compliance hold).
+</ResponseField>
+
+<ResponseField name="phone_number_id" type="integer | null">
+  The ID of the Consio phone number used for this call.
+</ResponseField>
+
+<ResponseField name="campaign_id" type="integer | null">
+  The ID of the campaign this call is associated with.
+</ResponseField>
+
+<ResponseField name="user_id" type="integer | null">
+  The ID of the human agent who handled this call. `null` if handled solely by an AI agent.
+</ResponseField>
+
+<ResponseField name="notes" type="string | null">
+  Free-text notes added to the call record by an agent or supervisor.
+</ResponseField>
+
+---
+
+<Tip>
+  Use `summary` and `next_steps` to power post-call workflows — for example, automatically triggering a follow-up SMS or creating a task in your helpdesk. See [Helpdesk Integrations](/integrations/helpdesks) for details.
+</Tip>

@@ -1,0 +1,78 @@
+{
+  "projectType": "api-service",
+  "projectName": "Consio",
+  "projectDescription": "Consio is an AI-powered voice calling platform for e-commerce brands that automates outbound sales campaigns, handles inbound calls, attributes revenue to conversations, and integrates with Shopify and leading helpdesk tools.",
+  "theme": "luma",
+  "primaryColor": "#ef7025",
+  "lightColor": "#eec9bc",
+  "darkColor": "#4fa1ab",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "authentication"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "concepts/workspaces",
+              "concepts/campaigns",
+              "concepts/ai-agents",
+              "concepts/calls",
+              "concepts/order-attribution"
+            ]
+          },
+          {
+            "group": "Integrations",
+            "pages": [
+              "integrations/shopify",
+              "integrations/helpdesks"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api-reference/overview",
+              "api-reference/authentication",
+              "api-reference/pagination"
+            ]
+          },
+          {
+            "group": "Endpoints",
+            "pages": [
+              "api-reference/calls",
+              "api-reference/attributed-orders"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "AI-powered outbound calling campaigns",
+    "Inbound call handling with AI agents",
+    "Revenue attribution per call, message, or voicemail",
+    "Shopify order & customer data sync",
+    "Integrations with Klaviyo, Gorgias, Zendesk, and more",
+    "Paginated call history API with rich filtering",
+    "Bearer API key authentication",
+    "Campaign contact-hour controls and dial-attempt limits"
+  ],
+  "publicApiSurface": [
+    "GET /v1/{workspace_slug}/calls — paginated call history with filtering by date, agent, campaign, direction, state",
+    "GET /v1/{workspace_slug}/attributed-orders — paginated attributed orders with date range and attribution-source filtering",
+    "ApiKeyBearer — Bearer token authentication using a csk_… API key"
+  ]
+}

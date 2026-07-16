@@ -1,0 +1,86 @@
+---
+title: "Consio Campaigns: Automated Outbound Calling Guide"
+sidebarTitle: "Campaigns"
+description: "Consio campaigns let you run automated outbound calling to a synced customer segment. Configure dial attempts, contact hours, and AI agent assignment."
+---
+
+A **campaign** is the core unit of outbound calling in Consio. You define a target audience by connecting a customer segment (for example, a Klaviyo segment of recent purchasers), assign an AI agent to handle the conversations, and configure dialing rules like contact hours and retry attempts. Once activated, Consio automatically dials contacts in the segment and the AI agent handles every call on your behalf.
+
+## Campaign Lifecycle
+
+<Steps>
+  <Step title="Create (Draft)">
+    You start by creating a campaign in **draft** status. During this phase you configure the campaign name, assign an AI agent, connect a phone number, write your campaign prompts, and set your dialing options. No calls are made while a campaign is in draft.
+  </Step>
+  <Step title="Sync Contacts from Segment">
+    Connect your campaign to a customer segment — for example, a Klaviyo segment. Consio pulls in the contacts and, with `continuous_sync` enabled, keeps the list up to date as customers enter or leave the segment.
+  </Step>
+  <Step title="Activate">
+    Set the campaign status to **active**. Consio begins scheduling outbound calls for all synced contacts, respecting your configured contact hours and dial attempt limits.
+  </Step>
+  <Step title="Run">
+    The AI agent dials contacts automatically within your configured hours. Each call attempt is tracked with a full status, transcript, summary, and any attributed revenue.
+  </Step>
+  <Step title="Complete">
+    A campaign reaches **completed** status when every contact has been dialed the maximum number of allowed times, or when you manually mark it complete. No further calls are made.
+  </Step>
+</Steps>
+
+## Campaign Statuses
+
+| Status      | Description                                                                                              |
+| ----------- | -------------------------------------------------------------------------------------------------------- |
+| `draft`     | The campaign is being configured. No calls are scheduled or made.                                        |
+| `active`    | The campaign is running. Consio is scheduling and dialing contacts according to your settings.           |
+| `paused`    | Dialing is temporarily stopped. Existing scheduled calls are held; you can resume at any time.           |
+| `completed` | All contacts have been worked through their maximum dial attempts, or the campaign was manually closed.  |
+
+## Segment Sync
+
+Campaigns draw their contact list from an external segment — most commonly a **Klaviyo** segment. You control how that list stays current with the `continuous_sync` option:
+
+- **`continuous_sync: true` (recommended)** — Consio continuously monitors the connected segment. When new contacts are added to the segment, they are automatically enrolled in the campaign. When contacts are removed from the segment, they are excluded from future dial attempts.
+- **`continuous_sync: false`** — The contact list is imported once at the time you activate the campaign and does not update automatically.
+
+Using continuous sync ensures your campaign always reflects your most current audience without any manual list management.
+
+## Campaign Options
+
+These settings control how and when Consio dials contacts in your campaign.
+
+| Option                           | Default          | Description                                                                                                   |
+| -------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------- |
+| `dial_attempts_per_contact`      | `3`              | The maximum number of times Consio will attempt to call a single contact before giving up.                    |
+| `delay_until_next_attempt`       | `259200s` (3 days) | How long Consio waits before retrying a contact after a missed or unanswered call.                          |
+| `contact_hours_start`            | `09:00`          | The earliest time of day Consio will dial contacts. Uses the workspace's configured timezone.                 |
+| `contact_hours_end`              | `19:00`          | The latest time of day Consio will dial contacts.                                                             |
+| `minimum_call_interval`          | `604800s` (7 days) | The minimum time that must pass between any two calls to the same contact, across all campaigns.            |
+| `exclude_texas_likely_residents` | `true`           | When enabled, contacts who are likely Texas residents are automatically excluded for compliance purposes.      |
+
+## Campaign Prompts
+
+Campaign prompts give the AI agent the context it needs to have an effective, on-brand conversation. You can configure the following fields on each campaign:
+
+| Field                 | Description                                                                                     |
+| --------------------- | ----------------------------------------------------------------------------------------------- |
+| `brand_voice`         | A description of how your brand communicates — e.g. "friendly and helpful, never pushy."       |
+| `product_name`        | The name of the product or offer featured in this campaign.                                     |
+| `key_features`        | Bullet points highlighting the most important features or benefits to communicate.              |
+| `product_description` | A longer description of the product, used to answer customer questions.                         |
+| `special_offer`       | Any discount, promotion, or time-limited offer the agent should mention.                        |
+| `sales_title`         | The title or role the agent should introduce itself with, e.g. "customer success specialist."   |
+| `keywords_to_avoid`   | Words or phrases the agent should never say during a call.                                      |
+
+<Warning>
+  Consio includes built-in compliance safeguards, but you are responsible for ensuring your campaigns comply with applicable telemarketing laws. Keep the following in mind:
+
+  - **Texas residents** — `exclude_texas_likely_residents` is enabled by default. Disabling this setting may expose you to liability under Texas telemarketing law. Do not disable it unless you have taken independent compliance steps.
+  - **Contact hours** — Always configure `contact_hours_start` and `contact_hours_end` to respect your customers' local time zones and applicable calling hour regulations.
+  - **Do Not Call (DNC)** — Consio automatically suppresses contacts who are on your internal DNC list. Ensure your contact data is kept up to date.
+</Warning>
+
+## Related Resources
+
+- [AI Agents](/concepts/ai-agents) — Configure the agent that will handle calls in this campaign
+- [Calls](/concepts/calls) — Understand call statuses and how individual call records are structured
+- [Order Attribution](/concepts/order-attribution) — Measure the revenue generated by your campaigns

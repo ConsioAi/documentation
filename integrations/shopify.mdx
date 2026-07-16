@@ -1,0 +1,87 @@
+---
+title: "Connect Consio to Your Shopify Store to Power AI Calls"
+sidebarTitle: "Shopify"
+description: "Sync your Shopify customer and order data with Consio to power campaigns, enable AI order lookups, and attribute revenue back to every conversation."
+---
+
+Connecting Shopify to Consio gives your AI agents full visibility into your customers' purchase history, active orders, and segment memberships — all in real time. Once connected, Consio can look up orders during a call, sync campaign contact lists directly from your Shopify segments, and attribute revenue from placed orders back to the conversation that influenced them.
+
+## What Consio Syncs from Shopify
+
+<CardGroup cols={2}>
+  <Card title="Customer Profiles" icon="user">
+    Name, email, phone number, tags, marketing consent (email and SMS), lifetime order count, and total spend.
+  </Card>
+  <Card title="Order Data" icon="bag-shopping">
+    Line items, financial status, fulfillment status, fulfillment tracking details, order status URL, total price, discounts, and subtotal.
+  </Card>
+  <Card title="Customer Segments" icon="users">
+    Shopify customer segments used as contact lists for outbound campaigns. Consio keeps these lists continuously in sync.
+  </Card>
+  <Card title="Revenue Attribution" icon="chart-line">
+    Orders placed after a Consio-influenced call are attributed back to that conversation for full campaign ROI reporting.
+  </Card>
+</CardGroup>
+
+## How to Connect Shopify
+
+<Steps>
+  <Step title="Open Integrations Settings">
+    In your Consio dashboard, navigate to **Workspace Settings → Integrations**.
+  </Step>
+  <Step title="Authorize the Consio App">
+    Click **Connect Shopify**. You will be redirected to Shopify's OAuth flow — review the requested permissions and click **Install app** to authorize Consio.
+  </Step>
+  <Step title="Wait for the Initial Sync">
+    After authorization, Consio immediately begins syncing your customer profiles, order history, and segment memberships. Depending on your store size, the initial sync may take a few minutes.
+  </Step>
+  <Step title="Verify the Connection">
+    Return to the **Integrations** page in your Consio dashboard and confirm that the Shopify connection status shows **Active**.
+  </Step>
+</Steps>
+
+## What the Shopify Integration Enables
+
+### Campaign Contact Syncing
+
+Once connected, you can target any of your Shopify customer segments when building a campaign. Consio pulls the segment membership from Shopify and keeps the contact list updated as customers enter or exit the segment — so your campaign always dials the right people.
+
+For full details on building campaigns, see the [Campaigns](/concepts/campaigns) guide.
+
+### AI Agent Order Lookup
+
+When **order lookup** is enabled on your AI agent, the agent can search for an order in real time during a call — using the caller's phone number or email to identify them — and read back order status, fulfillment tracking, and delivery details without human intervention.
+
+Order data surfaced during a call includes:
+
+- **Line items** — product names, quantities, and variants
+- **Financial status** — paid, refunded, partially refunded, etc.
+- **Fulfillment status** — fulfilled, unfulfilled, in transit, etc.
+- **Fulfillment tracking** — carrier and tracking number from the active fulfillment record
+- **Order status URL** — a direct link to the customer-facing order tracking page
+- **Pricing** — total price, subtotal, and total discounts applied
+
+### AI Agent Draft Order Creation
+
+When **draft order creation** is enabled, your AI agent can create a draft order on Shopify during the call and apply a discount code on the customer's behalf. This is useful for retention campaigns, win-back flows, and customer service resolutions.
+
+### Revenue Attribution
+
+Every time a customer places an order on Shopify after a Consio call, Consio attributes that order back to the influencing conversation. Attribution data is available in the [Attributed Orders API](/api-reference/attributed-orders) and includes line items, financial and fulfillment status, totals, and the order status URL.
+
+To learn more about how attribution works, see [Order Attribution](/concepts/order-attribution).
+
+## Integration Error Codes
+
+If Consio encounters a problem with your Shopify integration, an error code is recorded on the integration record. Use the table below to diagnose and resolve issues.
+
+| Error Code | What It Means | How to Fix |
+|---|---|---|
+| `invalid_segment_id` | The segment ID configured for a campaign no longer exists in Shopify or was never valid. | Open the affected campaign, re-select a valid Shopify customer segment, and save. |
+| `invalid_webhook_topic` | Consio attempted to register or respond to a Shopify webhook topic that is not supported. | Contact Consio support — this typically indicates a platform-level configuration issue. |
+| `access_revoked` | The Consio app was uninstalled or its access was revoked from your Shopify admin. | Reconnect Shopify by clicking **Connect Shopify** again and completing the OAuth flow. |
+| `unknown` | An unexpected error occurred during integration. | Retry the operation. If the error persists, contact Consio support with the integration ID. |
+
+<Warning>
+  If you uninstall the Consio app or revoke its permissions in your Shopify admin, all segment syncing will stop immediately and order attribution will cease to function. Any campaigns relying on Shopify segments will be unable to refresh their contact lists. Reconnect the integration as soon as possible to restore full functionality.
+</Warning>

@@ -1,0 +1,61 @@
+---
+title: "Consio: AI-Powered Voice Calling for E-Commerce"
+sidebarTitle: "Introduction"
+description: "AI-powered voice calling for e-commerce brands. Run outbound campaigns, handle inbound calls, and track revenue attribution via a simple REST API."
+---
+
+Consio is an AI-powered voice calling platform built specifically for e-commerce brands. Whether you want to recover abandoned carts, follow up on recent orders, handle post-purchase support, or re-engage lapsed customers, Consio lets you deploy intelligent voice agents that hold natural conversations — and ties every call back to real revenue. A clean REST API means you can pull your call and order data into any BI stack, data warehouse, or custom dashboard with minimal effort.
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="AI-Powered Campaigns" icon="robot" href="/concepts/campaigns">
+    Launch outbound calling campaigns powered by AI agents that follow customizable scripts, handle objections, and adapt in real time to each conversation.
+  </Card>
+  <Card title="Inbound Call Handling" icon="phone-incoming" href="/concepts/calls">
+    Route inbound calls to AI agents that can answer product questions, look up order status, and escalate to human agents when needed.
+  </Card>
+  <Card title="Revenue Attribution" icon="chart-line" href="/concepts/order-attribution">
+    Automatically link calls to downstream orders so you can measure the exact revenue impact of every campaign and agent interaction.
+  </Card>
+  <Card title="Shopify Integration" icon="bag-shopping" href="/integrations/shopify">
+    Connect your Shopify store in minutes. Consio syncs customers, orders, and product data to power personalised, context-aware conversations.
+  </Card>
+  <Card title="Helpdesk Integrations" icon="headset" href="/integrations/helpdesks">
+    Push call summaries, transcripts, and outcomes directly into your helpdesk so your support team always has full context on every interaction.
+  </Card>
+  <Card title="Public REST API" icon="code" href="/api-reference/overview">
+    Query call history and attributed orders programmatically. Paginated, predictable, and secured with Bearer token authentication.
+  </Card>
+</CardGroup>
+
+## Who is this for?
+
+Consio is designed for two main audiences:
+
+- **E-commerce brands** — merchants who want to use AI voice calling to drive more revenue, reduce churn, and automate customer outreach without building a calling infrastructure from scratch.
+- **BI and data teams** — analysts and engineers who need to pull call records and order attribution data into a data warehouse, reporting tool, or custom dashboard to understand campaign performance and revenue impact.
+
+If you manage outbound sales or support for an online store, or if you need programmatic access to call and order data, Consio is built for you.
+
+## What can you do with the API?
+
+The Consio public API currently exposes two endpoints. Both require a valid API key and your workspace slug.
+
+| Endpoint | Description |
+|---|---|
+| `GET /v1/{workspace_slug}/calls` | Retrieve a paginated list of all calls in your workspace, including metadata such as direction, duration, outcome, and timestamps. |
+| `GET /v1/{workspace_slug}/attributed-orders` | Retrieve a paginated list of orders that have been attributed to a Consio call or campaign, including order value and attribution details. |
+
+The base URL for all requests is `https://api-martin.consio.dev/public`.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Make your first API request in under 5 minutes. Retrieve call history for your workspace with a single curl command.
+  </Card>
+  <Card title="API Reference" icon="book" href="/api-reference/overview">
+    Explore the full API reference, including request parameters, response schemas, and example payloads for every endpoint.
+  </Card>
+</CardGroup>

@@ -1,0 +1,109 @@
+---
+title: "Revenue Attribution: Linking Orders to Conversations"
+sidebarTitle: "Order Attribution"
+description: "Consio attributes e-commerce orders to calls, messages, and voicemails. Use the attributed-orders API to pull revenue data into your analytics tools."
+---
+
+**Order attribution** is how Consio connects a customer conversation to a purchase. When a customer places an order on your Shopify store within a defined time window after a Consio call, message, or voicemail, that order is automatically attributed to the interaction that preceded it. This gives you a direct line of sight from every conversation your AI agent has to the revenue it generates — making it straightforward to calculate ROI, evaluate agent performance, and justify your campaigns with hard numbers.
+
+## How Attribution Works
+
+Consio monitors your Shopify store for new orders in real time. When an order comes in, Consio checks whether the customer who placed the order had a recent interaction (a call, an SMS message, or a voicemail) within the attribution window. If they did, the order is linked to that interaction as an attributed order.
+
+The attribution logic follows these rules:
+
+1. **Interaction first** — The call, message, or voicemail must have occurred *before* the order was placed.
+2. **Within the window** — The order must be created within the configured attribution window after the interaction.
+3. **Customer match** — The customer's contact information (phone number or email) must match the contact record in Consio.
+4. **One order, one interaction** — Each order is attributed to the single most recent qualifying interaction.
+
+## Attribution Types
+
+| Type        | Description                                                                                                   |
+| ----------- | ------------------------------------------------------------------------------------------------------------- |
+| `call`      | The order is attributed to a phone call handled by the AI agent. The customer spoke with the agent before purchasing. |
+| `message`   | The order is attributed to an SMS message sent by the agent (via `send_sms_enabled`) during or after a call.  |
+| `voicemail` | The order is attributed to a voicemail left by the agent when the customer did not answer.                    |
+
+## What's Included in an Attributed Order Record
+
+Each attributed order record gives you everything you need to understand both the conversation that drove the sale and the order details themselves.
+
+**Call details:**
+
+| Field                | Description                                                                  |
+| -------------------- | ---------------------------------------------------------------------------- |
+| `call_id`            | The ID of the Consio call linked to this order.                              |
+| `call_in_progress_at` | The timestamp when the call moved into the `in_progress` status.            |
+| `direction`          | Whether the call was `inbound` or `outbound`.                                |
+| `trigger_type`       | How the call was initiated: `outbound_power`, `outbound_click`, or `inbound`. |
+
+**Order details:**
+
+| Field                | Description                                                                  |
+| -------------------- | ---------------------------------------------------------------------------- |
+| `order_total_price`  | The total value of the attributed order.                                     |
+| `order_created_at`   | The timestamp when the order was placed on Shopify.                          |
+| `financial_status`   | The payment status of the order (e.g. `paid`, `pending`, `refunded`).        |
+| `cancelled_at`       | If the order was subsequently cancelled, the cancellation timestamp.         |
+
+**Order line items:**
+
+Each attributed order includes an array of line items so you can see exactly what was purchased:
+
+| Field              | Description                                              |
+| ------------------ | -------------------------------------------------------- |
+| `title`            | The name of the product.                                 |
+| `quantity`         | The number of units purchased.                           |
+| `price`            | The original unit price.                                 |
+| `discounted_price` | The actual unit price after any discounts were applied.  |
+
+**Customer information:**
+
+| Field    | Description                              |
+| -------- | ---------------------------------------- |
+| `name`   | The customer's full name.                |
+| `email`  | The customer's email address.            |
+| `phone`  | The customer's phone number.             |
+
+**Campaign and agent:**
+
+Each record also includes the campaign and AI agent associated with the interaction, so you can slice revenue data by campaign, by agent, or by both.
+
+## Use Cases
+
+- **Campaign ROI** — Sum `order_total_price` across all attributed orders for a campaign to calculate the revenue it generated, then compare against campaign costs.
+- **Agent performance** — Group attributed orders by AI agent to understand which agent configurations are driving the most revenue.
+- **BI and reporting** — Pull attributed orders into your data warehouse or BI tool using `start_date` and `end_date` filters for weekly, monthly, or custom reporting periods.
+- **Revenue reconciliation** — Cross-reference attributed orders with your Shopify order records to validate attribution and audit your data.
+
+<Tip>
+  Use the `start_date` and `end_date` query parameters when calling the attributed orders endpoint to scope your results to a specific reporting period. For example, to pull all attributed orders for a given month, pass `start_date=2025-06-01` and `end_date=2025-06-30`. This keeps response sizes manageable and makes it easy to build consistent month-over-month reports.
+</Tip>
+
+## Retrieving Attributed Orders via the API
+
+Fetch attributed orders for your workspace with a `GET` request:
+
+```http
+GET https://api-martin.consio.dev/public/v1/{workspace_slug}/attributed-orders
+Authorization: Bearer csk_...
+```
+
+Useful query parameters:
+
+```http
+GET https://api-martin.consio.dev/public/v1/{workspace_slug}/attributed-orders
+  ?start_date=2025-06-01
+  &end_date=2025-06-30
+  &campaign_id=camp_01abc
+Authorization: Bearer csk_...
+```
+
+For the full parameter reference, filter options, and example responses, see the [Attributed Orders API Reference](/api-reference/attributed-orders).
+
+## Related Resources
+
+- [Calls](/concepts/calls) — Understand the call records that attributed orders are linked to
+- [Campaigns](/concepts/campaigns) — Set up the campaigns that drive attributed revenue
+- [Shopify Integration](/integrations/shopify) — Required for order attribution to function

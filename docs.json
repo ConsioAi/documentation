@@ -1,0 +1,72 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "name": "Consio",
+  "theme": "luma",
+  "colors": {
+    "primary": "#ef7025",
+    "light": "#eec9bc",
+    "dark": "#4fa1ab"
+  },
+  "favicon": "/favicon.svg",
+  "navbar": {
+    "primary": {
+      "type": "button",
+      "label": "Get Started",
+      "href": "/quickstart"
+    }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "authentication"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "concepts/workspaces",
+              "concepts/campaigns",
+              "concepts/ai-agents",
+              "concepts/calls",
+              "concepts/order-attribution"
+            ]
+          },
+          {
+            "group": "Integrations",
+            "pages": [
+              "integrations/shopify",
+              "integrations/helpdesks"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api-reference/overview",
+              "api-reference/authentication",
+              "api-reference/pagination"
+            ]
+          },
+          {
+            "group": "Endpoints",
+            "pages": [
+              "api-reference/calls",
+              "api-reference/attributed-orders"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

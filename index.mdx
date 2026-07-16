@@ -1,0 +1,64 @@
+---
+title: "Consio Documentation — AI Voice Calling for E-Commerce"
+sidebarTitle: "Home"
+description: "Learn how to integrate and extend Consio — the AI-powered voice calling platform for e-commerce brands — using the public REST API."
+---
+
+Consio helps e-commerce brands drive revenue through AI-powered outbound calling campaigns and intelligent inbound call handling. This documentation covers everything you need to authenticate with the API, retrieve call history, and pull attributed order data into your own systems.
+
+<CardGroup cols={2}>
+  <Card title="Quick Start" icon="rocket" href="/quickstart">
+    Make your first API request in minutes. Retrieve your workspace's call history with a single authenticated request.
+  </Card>
+  <Card title="Authentication" icon="key" href="/authentication">
+    Learn how to generate and use your Consio API key to authenticate every request.
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/overview">
+    Explore the full public REST API — endpoints, parameters, and response schemas.
+  </Card>
+  <Card title="Core Concepts" icon="book-open" href="/concepts/workspaces">
+    Understand workspaces, campaigns, AI agents, calls, and order attribution.
+  </Card>
+</CardGroup>
+
+## How Consio Works
+
+Consio connects your e-commerce store to a powerful calling platform. AI agents handle conversations at scale — following up on abandoned carts, re-engaging lapsed customers, and routing inbound calls intelligently. Every call outcome is tracked and, where a purchase follows, attributed back to the conversation.
+
+<Steps>
+  <Step title="Connect your store">
+    Link your Shopify store (or a supported helpdesk like Gorgias or Zendesk) to your Consio workspace. Consio syncs your customer segments automatically.
+  </Step>
+  <Step title="Configure a campaign">
+    Create an outbound campaign, assign an AI agent, and choose a customer segment. Set your contact hours and dial-attempt limits.
+  </Step>
+  <Step title="Go live">
+    Activate the campaign. Consio dials contacts, the AI agent handles conversations, and call data flows into your dashboard in real time.
+  </Step>
+  <Step title="Pull your data">
+    Use the public REST API to retrieve paginated call history and revenue attribution records for reporting and BI integrations.
+  </Step>
+</Steps>
+
+## Explore the Docs
+
+<CardGroup cols={3}>
+  <Card title="Campaigns" icon="bullhorn" href="/concepts/campaigns">
+    Outbound dialing campaigns with segment sync and dial controls
+  </Card>
+  <Card title="AI Agents" icon="robot" href="/concepts/ai-agents">
+    Configure AI agents with custom greetings, tools, and transfer rules
+  </Card>
+  <Card title="Order Attribution" icon="chart-line" href="/concepts/order-attribution">
+    Track revenue influenced by calls, messages, and voicemails
+  </Card>
+  <Card title="Shopify Integration" icon="bag-shopping" href="/integrations/shopify">
+    Sync customer segments and order data from your Shopify store
+  </Card>
+  <Card title="Calls API" icon="phone" href="/api-reference/calls">
+    Retrieve paginated call history for your workspace, including outcomes, durations, and agent details.
+  </Card>
+  <Card title="Attributed Orders API" icon="receipt" href="/api-reference/attributed-orders">
+    Retrieve paginated attributed order records to measure revenue influenced by Consio calls.
+  </Card>
+</CardGroup>
